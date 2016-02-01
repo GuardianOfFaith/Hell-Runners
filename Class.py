@@ -16,12 +16,6 @@ class Object():
     def get_img(self):
         return self.image
 
-class Pics(Object):
-    def __init__(self, pos_x, etage):
-        Object.__init__(self, pos_x, etage, "assets/Pics.png")
-
-    #TODO interraction
-
 class Personnage(Object):
     def __init__(self, pos_x, etage, image, hp, Shield):
         Object.__init__(self, pos_x, etage, image)
@@ -41,29 +35,55 @@ class Personnage(Object):
 
     def deplacement(self):
         self.pos_x = self.pos_x
-        #TODO deplacement
+        #TODO
 
     #TODO interraction objet
-
+    def alive(self):
+        if Personnage.get_hp==0:
+            sys.exit()
+            print "GAME OVER"
+            
+class Pics(Object):
+    def __init__(self, pos_x, etage):
+        Object.__init__(self, pos_x, etage, "assets/Pics.png")
+    def damage(Personnage):
+        if Personnage.get_shield!=True :
+            Personnage.update_shield
+        else :
+            Personnage.set_hp(get_hp-1)
+            
 class Heart(Object):
     def __init__(self, pos_x, etage):
-        objet.__init__(self, pos_x, etage, "assets/Heart.png")
-    #TODO interraction
+        Objet.__init__(self, pos_x, etage, "assets/Heart.png")
+
+    def heal(Personnage):
+        if Personnage.get_hp<3:
+            Personnage.set_hp(Personnage.get_hp+1)
+            self.pos_x =6666
+            self.etage =6666
+
 
 class Block(Object):
     def __init__(self, pos_x, etage):
         objet.__init__(self, pos_x, etage, "assets/Block.png")
-    #TODO interraction
 
 class Passerelle(Object):
     def __init__(self, pos_x, etage):
         objet.__init__(self, pos_x, etage, "assets/Passerelle.png")
-    #TODO interraction
 
 class End(Object):
     def __init__(self, pos_x, etage):
         Object.__init__(self, pos_x, etage, "assets/End.png")
     #TODO interraction
+
+class Shield(Object):
+    def __init__(self, pos_x, etage):
+        Object.__init__(self, pos_x, etage, "assets/Shield.png")
+
+    def defense(Personnage):
+        if Personnage.get_shield==False:
+            Personnage.update_shield
+
         
 def display(Pics):
     screen.blit(background_image, background_position)
