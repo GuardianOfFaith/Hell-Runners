@@ -1,0 +1,178 @@
+import sys
+import pygame 
+import os
+import time
+
+# Methode permettant de charger une image
+# et renvoie l'objet surface associee 
+def load_image(name):
+    image = pygame.image.load(name)
+    return image
+
+# Init modules pygames
+pygame.init()
+
+#******************** CLASSSSES ********************
+class Object():
+    # constructeur
+    def __init__(self, pos_x, etage, image):
+
+        #initialisation et affectation d'attribut
+        self.image = load_image(image)
+        self.rect = pygame.Rect(pos_x, etage, 25, 25)
+
+    def get_rect(self):
+        return self.rect
+
+    def get_img(self):
+        return self.image
+
+class Personnage(Object):
+    def __init__(self, pos_x, etage, image, hp, Shield):
+        Object.__init__(self, pos_x, etage, image)
+
+    def get_hp(self):
+        return self.hp
+
+
+# Charge l'image de fond
+background_image = load_image("background.png")
+background_position = [0, 0]
+
+# Affiche la fenetre
+os.environ['SDL_VIDEO_CENTERED'] = '1'
+size = width, height = 640, 480
+screen = pygame.display.set_mode(size)
+
+# Lance la musique
+#pygame.mixer.music.load('music.mp3')
+#pygame.mixer.music.play()
+
+
+
+# Charge sprite    
+droite = [3, 0]
+gauche = [-3, 0]
+hero = load_image("animation/spartiatDroite.png")
+vie = load_image("assets/Heart.png")
+block = load_image("assets/Block.png")
+black_heart = load_image("assets/BlackHeart.png")
+
+# On charge le rectangle d'invader, correspondant a
+# un tableau definissant sa position
+hero_rect = hero.get_rect().move(0,398)
+vie_rect1 = vie.get_rect().move(15,15)
+vie_rect2 = vie.get_rect().move(40,15)
+vie_rect3 = vie.get_rect().move(65,15)
+
+block_rect = block.get_rect().move(120,380)
+
+def isPointInsideRect(x, y, rect):
+  if (x > rect.left) and (x < rect.right) and (y > rect.top) and (y < rect.bottom):
+    return True
+  else:
+    return False
+
+  
+def doRectsOverlap(rect1, rect2):
+  for a, b in [(rect1, rect2), (rect2, rect1)]:
+    heromiddle = (a.left + a.right)/2
+  # Check if a's corners are inside b
+    if (isPointInsideRect(a.left, a.bottom, b) or isPointInsideRect(a.right, a.bottom, b) or isPointInsideRect(heromiddle, a.bottom, b) ):
+      return 0
+    elif (isPointInsideRect(a.left, a.top, b) or isPointInsideRect(a.right, a.top, b) or isPointInsideRect(heromiddle, a.top, b)):
+      return 1
+    else:
+      return 2  
+
+
+
+peutsauter= True
+ascension = False
+
+var = 1
+var2 = 1
+var3 = True
+# Boucle de jeu
+while 1:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT: 
+            sys.exit()
+
+    if(doRectsOverlap(hero_rect,block_rect) == 0):
+        peutsauter=True
+
+    keys = pygame.key.get_pressed()
+    if (keys[pygame.K_UP] or keys[pygame.K_z]) and peutsauter and doRectsOverlap(hero_rect,block_rect) != 1:               
+
+            ascension = True
+            peutsauter= False
+            posBotHero = hero_rect.bottom 
+  
+    if var3:
+        hero = load_image("animation/f.png")
+    else:
+        hero = load_image("animation/f.png")
+
+    if keys[pygame.K_LEFT] or keys[pygame.K_q]:
+        hero_rect = hero_rect.move(gauche)
+        if var == 1 or var == 2:
+            hero = load_image("animation/g1.png")
+            var = var +1
+            var3 = True
+        elif var == 3 or var ==4 :
+            hero = load_image("animation/g2.png")
+            var = var +1
+            var3 = True
+        elif var == 5 or var == 6:
+            hero = load_image("animation/g3.png")
+            var = 1
+            var3 = True
+
+    if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+        hero_rect = hero_rect.move(droite)
+        if var2 == 1 or var2 == 2:
+            hero = load_image("animation/d1.png")
+            var2 = var2 +1
+            var3 = False
+        elif var2 == 3 or var2 ==4 :
+            hero = load_image("animation/d2.png")
+            var2 = var2 +1
+            var3 = False
+        elif var2 == 5 or var2 == 6:
+            hero = load_image("animation/d3.png")
+            var2 = 1
+            var3 = False
+
+    if hero_rect.right > width+15:
+        hero_rect = hero_rect.move(-620,0)
+
+    if hero_rect.left < -15:  
+        hero_rect = hero_rect.move(620,0)
+
+    if hero_rect.bottom < height and doRectsOverlap(hero_rect, block_rect) != 0:
+        hero_rect = hero_rect.move(0,2)
+
+    if hero_rect.bottom >= height:
+        peutsauter = True
+
+    if ascension:
+        if hero_rect.bottom <= posBotHero -100:
+            ascension = False
+        else:
+            hero_rect = hero_rect.move(0,-10)
+
+    screen.blit(background_image, background_position)
+    screen.blit(hero, hero_rect)
+    if(Personnage(hero).get_hp() >= 1):
+        screen.blit(vie, vie_rect1)
+        if(Personnage(hero).get_hp() >= 2):
+            screen.blit(vie, vie_rect2)
+            if(Personnage(hero).get_hp() == 3):
+                screen.blit(vie, vie_rect3)
+
+    screen.blit(block, block_rect)
+
+    # Affiche toute la file
+    pygame.display.flip()
+    screen.blit
