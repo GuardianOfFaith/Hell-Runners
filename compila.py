@@ -1,6 +1,7 @@
 import sys
 import pygame
 from pygame.locals import *
+import numpy
 import os
 import random
 
@@ -64,7 +65,7 @@ class Pics(Object):
 
 class Heart(Object):
     def __init__(self, pos_x, etage):
-        Objet.__init__(self, pos_x, etage, "assets/Heart.png")
+        Object.__init__(self, pos_x, etage, "assets/Heart.png")
 
     def heal(Personnage):
         if Personnage.get_hp<3:
@@ -75,11 +76,11 @@ class Heart(Object):
 
 class Block(Object):
     def __init__(self, pos_x, etage):
-        objet.__init__(self, pos_x, etage, "assets/Block.png")
+        Object.__init__(self, pos_x, etage, "assets/Block.png")
 
 class Passerelle(Object):
     def __init__(self, pos_x, etage):
-        objet.__init__(self, pos_x, etage, "assets/Passerelle.png")
+        Object.__init__(self, pos_x, etage, "assets/Passerelle.png")
 
 class End(Object):
     def __init__(self, pos_x, etage):
@@ -93,8 +94,32 @@ class Shield(Object):
     def defense(Personnage):
         if Personnage.get_shield==False:
             Personnage.update_shield
-            self.pos_x =6666
-            self.etage =6666
+
+class Case():
+    def __init__(self,pos_x,pos_y,rand1,rand2):
+        self.rect=Rect(pos_x,pos_y,25,25)
+        self.object=Object
+        if rand1 == 1 or rand1 == 3 :
+            self.Type=Block(pos_x,pos_y)
+        elif rand1 == 2 or rand1 == 4 :
+            self.Type=Passerelle(pos_x,pos_y)
+        else :
+            self.Type=None
+        if self.Type :
+            if rand2 == 3 :
+                self.Item=Heart(pos_x,pos_y)
+            elif rand2 == 7 :
+                self.Item=Shield(pos_x,pos_y)
+            elif rand2 == 1 or rand2 == 5 or rand2 == 9 :
+                self.Item=Pics(pos_x,pos_y)
+            else:
+                self.Item=None
+        else:
+            self.Item= None
+
+    def destroy():
+        self.Item=None
+
 
 def display(Pics):
     screen.blit(background_image, background_position)
@@ -106,41 +131,25 @@ def display(Pics):
 
 #TODO Display elements
 
-#fin objets
-
-#TODO genDrop & gen
-def genDrop():
-    #generateur d'objet
-    rand=random.randint(0,9)
-    #if rand == 3 :
-        #Heart
-    #elif rand == 7 :
-        #Shield
-    #elif rand == 1 and rand == 5 and rand == 9 :
-        #Pics
+#fin Objects
 
 
 def gen():
     #generateur de map
-    map = array([[0,1,2,3,4,5,6,7,8,9,10,11],[0,1,2]])
-    #creation map sur i etage
-    j=0
-    while j < 3:
-        k=0
-        while k<12:
-            rand = random.randint(0,4)
-            if rand == 1 and rand == 3 :
-                #creation Block
-                map[k][j]=Block(k,j)
-                genDrop(map[k][j])
-            elif rand == 2 and rand == 4 :
-                #creation Passerelle
-                map[k][j]=Passerelle(k,j)
-                genDrop(map[k][j])
-            k=k+1
-        j=j+1
-    map[0][0]=Block(0,0)
-    map[11][0]=Block(11,0)
+    map_jeu = numpy.array([[0,1,2,3,4,5,6,7,8,9,10,11],[0,1,2,3,4,5,6,7,8,9,10,11,],Case])
+    #creation map_jeu sur i etage
+
+    for j in range (0,43):
+        for k in range (0,12):
+            rand1 = random.randint(0,4)
+            rand2 = random.randint(0,9)
+            print "j = %d et k = %d" % (j,k)
+            print "rand1 = %d et rand2= %d" %(rand1,rand2)
+            casex=Case(j,k,rand1,rand2)
+            map_jeu[0][k]=casex
+    map_jeu[0][0]=Block(0,0)
+    map_jeu[0][11]=Block(0,11)
+
 
 
 #system du jeu
@@ -148,7 +157,7 @@ def game_loop():
     #creation map
     gen()
     #creation personnages
-    joueur= Personnage(0,0,"",3,False)
+    joueur = Personnage(0,0,"",3,False)
     IA = Personnage(11,0,"",3,False)
 
     #boucle de jeu
@@ -167,26 +176,37 @@ def game_loop():
 
         #Affichage
 
-def menu() :
+# initialisation des variables
+page_active = "menu"
+
+def menu(page_active) :
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
 
         if event.type == MOUSEBUTTONUP and event.button == 1:
-            if event.pos[0] >= 500 and event.pos[0] <= 600 and event.pos[1] >= 50 and event.pos[1] < 150 and page_active == "menu":
-                #lancer le jeu
-                game_loop()
+            if page_active == "menu":
+                if event.pos[0] >= 500 and event.pos[0] <= 600 and event.pos[1] >= 50 and event.pos[1] < 150:
+                    #lancer le jeu
+                    game_loop()
 
-            if event.pos[0] >= 500 and event.pos[0] <= 600 and event.pos[1] >= 150 and event.pos[1] < 250 and page_active == "menu":
-                #chargement des instructions
-                print("Chargement de la page des instructions")
-                #pygame.display.update(screen.fill(0))
-                page_active = "instruction"
-                pygame.display.update(screen.blit(background_image, background_position))
+                if event.pos[0] >= 500 and event.pos[0] <= 600 and event.pos[1] >= 150 and event.pos[1] < 250:
+                    #chargement des instructions
+                    print("Chargement de la page des instructions")
+                    #pygame.display.update(screen.fill(0))
+                    page_active = "instruction"
+                    pygame.display.update(screen.blit(background_image, background_position))
 
-
-            if event.pos[0] >= 500 and event.pos[0] <= 600 and event.pos[1] >= 250 and event.pos[1] <= 350 and page_active == "menu":
-                sys.exit()
+                if event.pos[0] >= 500 and event.pos[0] <= 600 and event.pos[1] >= 250 and event.pos[1] <= 350:
+                    sys.exit()
+            elif page_active == "instruction":
+                if event.pos[0] >= 500 and event.pos[0] <= 570 and event.pos[1] >= 375 and event.pos[1] <= 407:
+                    #chargement du menu
+                    print("Chargement de la page du menu")
+                    #pygame.display.update(screen.fill(0))
+                    page_active = "menu"
+                    pygame.display.update(screen.blit(background_image, background_position))
 
 
     # Ajoute notre images a la file des affichages prevus
@@ -201,20 +221,19 @@ def menu() :
         screen.blit(touche_deplacement_image,touche_deplacement_position)
         screen.blit(touche_objet_image,touche_objet_position)
         screen.blit(touche_menu_image,touche_menu_position)
+        screen.blit(retour_menu_image,retour_menu_position)
 
 
     # Affiche toute la liste FIFO (ici que notre image de fond)
     pygame.display.flip()
     screen.blit
+    return page_active
 
 
 ###########################################################
 
 # initialise les modules pygame
-pygame.init()
-
-# Init variable globales
-page_active = "menu"
+pygame.init
 
 #initialisation Musique
 #TODO
@@ -263,10 +282,18 @@ touche_objet_position = [50, 130]
 touche_menu_image = load_image("touches-e_0.png")
 touche_menu_position = [50, 250]
 
+#Charge le retour au menu
+retour_menu_image = load_image("retour-menu.png")
+retour_menu_position = [500, 375]
+
+#################
+#####Fenetre#####
+#################
+
 # Affiche la fenetre
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 size = width, height = 640, 480
 screen = pygame.display.set_mode(size)
 
 while 1:
-    menu()
+    page_active = menu(page_active)
