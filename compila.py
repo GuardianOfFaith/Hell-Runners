@@ -233,7 +233,7 @@ def menu(page_active) :
 ###########################################################
 
 # initialise les modules pygame
-pygame.init
+pygame.init()
 
 #initialisation Musique
 #TODO
